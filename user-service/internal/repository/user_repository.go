@@ -8,6 +8,7 @@ import (
 	"github.com/pranay999000/smart-inventory/user-service/internal/domain"
 	"github.com/pranay999000/smart-inventory/user-service/internal/pkg"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -25,7 +26,7 @@ func NewUserRepository(db *mongo.Client, users *mongo.Collection) *UserRepositor
 
 func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) error {
 
-	emailCheck, err := r.CheckEmail(ctx, user.Email)
+	emailCheck, _, err := r.CheckEmail(ctx, user.Email)
 	if err != nil {
 		return err
 	}
@@ -58,20 +59,20 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User) erro
 
 }
 
-func (r *UserRepository) CheckEmail(ctx context.Context, email string) (bool, error) {
+func (r *UserRepository) CheckEmail(ctx context.Context, email string) (bool, *domain.User, error) {
 
-	var result struct{}
+	var result domain.User
 
 	err := r.Users.FindOne(ctx, bson.M{"email": email}).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return false, nil
+			return false, nil, nil
 		}
 		log.Printf("Failed to find email %s: %v\n", email, err)
-		return false, err
+		return false, nil, err
 	}
 
-	return true, nil
+	return true, &result, nil
 
 }
 
@@ -89,5 +90,33 @@ func (r *UserRepository) CheckPhoneNumber(ctx context.Context, phoneNumber strin
 	}
 
 	return true, nil
+
+}
+
+func (r *UserRepository) SetUserStatus(ctx context.Context, user_id string, status domain.Status) (error) {
+
+	objID, err := primitive.ObjectIDFromHex(user_id)
+	if err != nil {
+		log.Printf("Failed to create ObjectID: %v\n", err)
+		return err
+	}
+
+	filter := bson.M{"_id": objID}
+	update := bson.M{
+		"$set": bson.M{ "status": status },
+	}
+
+	updatedResult, err := r.Users.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Failed to update user: %v", err)
+		return err
+	}
+
+	if updatedResult.MatchedCount == 0 {
+		log.Printf("User Document did not update")
+		return errors.New("document not updated")
+	}
+
+	return nil
 
 }

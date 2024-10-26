@@ -29,6 +29,7 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 			Success: false,
 			ErrMessage: "method not allowed",
 		}, http.StatusMethodNotAllowed)
+		return
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 3)
@@ -71,4 +72,55 @@ func (h *UserHandler) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		Success: res.Success,
 		ErrMessage: res.ErrMessage,
 	}, http.StatusOK)
+}
+
+func (h *UserHandler) SigninHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		pkg.WriteJSONResponse(w, domain.SignInResponse{
+			Success: false,
+			ErrMessage: "method not allowed",
+		}, http.StatusMethodNotAllowed)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 3)
+	defer cancel()
+
+	if err := json.NewDecoder(r.Body).Decode(&domain.SignInRequest); err != nil {
+		log.Printf("error decoding json request: %v", err)
+		pkg.WriteJSONResponse(w, domain.SignInResponse{
+			Success: false,
+			ErrMessage: "error decoding json request",
+		}, http.StatusInternalServerError)
+		return
+	}
+
+	res, err := (*h.UserClient).SignIn(ctx, &userproto.SignInRequest{
+		Email: domain.SignInRequest.Email,
+		Password: domain.SignInRequest.Password,
+	})
+	if err != nil {
+		log.Printf("error signing in user: %v\n", err)
+		pkg.WriteJSONResponse(w, domain.SignInResponse{
+			Success: false,
+			ErrMessage: "unable to signin user",
+		}, http.StatusInternalServerError)
+		return
+	}
+
+	switch result := res.Result.(type) {
+	case *userproto.SignInResponse_ErrMessage:
+		log.Printf("An Error Occured: %v\n", err)
+		pkg.WriteJSONResponse(w, domain.SignInResponse{
+			Success: res.Success,
+			ErrMessage: result.ErrMessage.Message,
+		}, http.StatusInternalServerError)
+	case *userproto.SignInResponse_AuthTk:
+		pkg.WriteJSONResponse(w, domain.SignInResponse{
+			Success: res.Success,
+			AuthTK: result.AuthTk,
+		}, http.StatusOK)
+	}
+
 }

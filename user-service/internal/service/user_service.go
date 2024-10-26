@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/pranay999000/smart-inventory/user-service/internal/domain"
+	"github.com/pranay999000/smart-inventory/user-service/internal/pkg"
 	"github.com/pranay999000/smart-inventory/user-service/internal/repository"
 	userpb "github.com/pranay999000/smart-inventory/user-service/proto"
 	"google.golang.org/grpc/codes"
@@ -65,4 +66,92 @@ func (s *UserServiceServer) SignUp(ctx context.Context, req *userpb.SignUpUserRe
 		ErrMessage: nil,
 	}, nil
 
+}
+
+func (s *UserServiceServer) SignIn(ctx context.Context, req *userpb.SignInRequest) (*userpb.SignInResponse, error) {
+
+	if strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Password) == "" {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "some fields are required",
+				},
+			},
+		}, status.Error(codes.InvalidArgument, "bad request")
+	}
+
+	var user *domain.User
+
+	doesExist, user, err := s.Repository.CheckEmail(ctx, req.Email)
+	if err != nil {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "error in finding email",
+				},
+			},
+		}, status.Errorf(codes.InvalidArgument, "unable to find email: %s", req.Email)
+	}
+	
+	if !doesExist {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "email does not exist",
+				},
+			},
+		}, status.Errorf(codes.InvalidArgument, "invalid email: %s", req.Email)
+	}
+
+	passwordMatch := pkg.CheckPasswordHash(req.Password, user.Password)
+
+	if !passwordMatch {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "password does not match",
+				},
+			},
+		}, status.Error(codes.InvalidArgument, "invalid password",)
+	}
+
+	tk, err := pkg.GenerateJWTToken(user.ID, user.FirstName, user.MiddleName, user.LastName, user.Avatar)
+
+	if err != nil {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "unable to generate auth token",
+				},
+			},
+		}, status.Errorf(codes.Internal, "unable to generate auth_tk: %v", err)
+	}
+
+	err = s.Repository.SetUserStatus(ctx, user.ID, domain.ACTIVE)
+	if err != nil {
+		return &userpb.SignInResponse{
+			Success: false,
+			Result: &userpb.SignInResponse_ErrMessage{
+				ErrMessage: &userpb.ErrorMessage{
+					Message: "unable to update user status",
+				},
+			},
+		}, status.Errorf(codes.Internal, "unable to update user status: %v", err)
+	}
+
+	return &userpb.SignInResponse{
+		Success: true,
+		Result: &userpb.SignInResponse_AuthTk{
+			AuthTk: &userpb.AuthTK{
+				UserId: user.ID,
+				Token: tk,
+			},
+		},
+	}, nil
+	
 }

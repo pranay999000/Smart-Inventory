@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("error loading .env: %v\n", err)
@@ -33,9 +34,9 @@ func main() {
 	userHandler := handler.NewUserHandler(&userGRPCClient)
 
 	http.HandleFunc("/api/v1/signup", middleware.LoggingMiddleware(userHandler.SignUpHandler))
+	http.HandleFunc("/api/v1/signin", middleware.LoggingMiddleware(userHandler.SigninHandler))
 
 	log.Printf("API Gateway running in post: %d", 3000)
 	log.Fatal(http.ListenAndServe(":3000", nil))
-
 
 }
