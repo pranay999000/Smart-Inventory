@@ -1,0 +1,1 @@
+protoc --go_out=./user-service/proto --go-grpc_out=./user-service/proto user-service/proto/user.proto
