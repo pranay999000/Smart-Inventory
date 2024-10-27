@@ -1,8 +1,9 @@
 version: '3'
 
 services:
+
   mongo:
-    image: "mongo:4.4-bionic"
+    image: mongo:4.4-bionic
     container_name: mongo_db
     ports:
       - "27017:27017"
@@ -15,5 +16,71 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     command: mongod
 
+  
+  mysql_master:
+    image: mysql:8.0
+    container_name: mysql_master
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_MASTER_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    command: --default-authentication-plugin=mysql_native_password --server-id=1 --log-bin=mysql-bin
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_master_data:/var/lib/mysql
+    networks:
+      - mysql_network
+  
+
+  mysql_replica_1:
+    image: mysql:8.0
+    container_name: mysql_replica_1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_MASTER_ROOT_PASSWORD}
+    command: --default-authentication-plugin=mysql_native_password --server-id=2 --relay-log=relay-bin
+    depends_on:
+      - mysql_master
+    volumes:
+      - mysql_replica1_data:/var/lib/mysql
+    networks:
+      - mysql_network
+  
+
+  mysql_replica_2:
+    image: mysql:8.0
+    container_name: mysql_replica_2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_MASTER_ROOT_PASSWORD}
+    command: --default-authentication-plugin=mysql_native_password --server-id=3 --relay-log=relay-bin
+    depends_on:
+      - mysql_master
+    volumes:
+      - mysql_replica2_data:/var/lib/mysql
+    networks:
+      - mysql_network
+  
+
+  haproxy:
+    image: haproxy:alpine3.17
+    container_name: haproxy
+    depends_on:
+      - mysql_replica_1
+      - mysql_replica_2
+    ports:
+      - 3300:3300
+      - 8404:8404
+    networks:
+      - mysql_network
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+
+networks:
+  mysql_network:
+
+
 volumes:
   mongodata: null
+  mysql_master_data:
+  mysql_replica1_data:
+  mysql_replica2_data:

@@ -1,1 +1,4 @@
 .env
+mysql-master-init.sql
+mysql-replica-init.sql
+master_dump.sql

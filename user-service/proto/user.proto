@@ -34,7 +34,8 @@ message User {
 	UserRole		role = 8;
 	string			avatar = 9;
 	string			location = 10;
-	string			id = 11;
+	int32			business_id = 11;
+	string			id = 12;
 }
 
 message SuccessMessage {

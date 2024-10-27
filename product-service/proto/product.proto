@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package product;
+option go_package = ".";
+
+service ProductService {
+	rpc CreateBusiness(CreateBusinessRequest) returns (CreateBusinessResponse);
+}
+
+message Business {
+	string		business_name = 1;
+	string		created_by = 2;
+	string		industry = 3;
+	string		description = 4;
+	string		logo = 5;
+	int32		inagurated = 6;
+	string		website_url = 7;
+	int32		id = 8;
+}
+
+message CreateBusinessRequest {
+	Business	business = 1;
+}
+
+message ErrorMessage {
+	string	message = 1;
+}
+
+message CreateBusinessResponse {
+	bool		success = 1;
+	oneof		result {
+		ErrorMessage 	err_message = 2;
+		string			message = 3;
+	}
+}
