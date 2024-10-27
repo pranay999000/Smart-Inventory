@@ -9,7 +9,7 @@ import (
 
 	"github.com/pranay999000/smart-inventory/api-gateway/domain"
 	"github.com/pranay999000/smart-inventory/api-gateway/pkg"
-	userproto "github.com/pranay999000/smart-inventory/user-service/proto"
+	userproto "github.com/pranay999000/smart-inventory/user-service/proto/user"
 )
 
 type UserHandler struct {

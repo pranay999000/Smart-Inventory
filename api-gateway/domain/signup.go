@@ -1,6 +1,6 @@
 package domain
 
-import userproto "github.com/pranay999000/smart-inventory/user-service/proto"
+import userproto "github.com/pranay999000/smart-inventory/user-service/proto/user"
 
 var SignUpRequest struct {
 	Email			string					`json:"email"`

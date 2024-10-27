@@ -7,7 +7,7 @@ import (
 	"github.com/pranay999000/smart-inventory/user-service/internal/domain"
 	"github.com/pranay999000/smart-inventory/user-service/internal/pkg"
 	"github.com/pranay999000/smart-inventory/user-service/internal/repository"
-	userpb "github.com/pranay999000/smart-inventory/user-service/proto"
+	userpb "github.com/pranay999000/smart-inventory/user-service/proto/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

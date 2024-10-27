@@ -33,5 +33,6 @@ type User struct {
 	Avatar			string			`json:"avatar" bson:"avatar"`
 	Location		string			`json:"location" bson:"location"`
 	CreatedAt		time.Time		`json:"created_at" bson:"created_at"`
+	BusinessId		uint			`json:"business_id" bson:"business_id"`
 }
 

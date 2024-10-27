@@ -8,7 +8,6 @@ import (
 	"github.com/pranay999000/smart-inventory/user-service/internal/domain"
 	"github.com/pranay999000/smart-inventory/user-service/internal/pkg"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -93,9 +92,9 @@ func (r *UserRepository) CheckPhoneNumber(ctx context.Context, phoneNumber strin
 
 }
 
-func (r *UserRepository) SetUserStatus(ctx context.Context, user_id string, status domain.Status) (error) {
+func (r *UserRepository) SetUserStatus(ctx context.Context, userId string, status domain.Status) (error) {
 
-	objID, err := primitive.ObjectIDFromHex(user_id)
+	objID, err := pkg.StringToObjID(userId)
 	if err != nil {
 		log.Printf("Failed to create ObjectID: %v\n", err)
 		return err
@@ -118,5 +117,60 @@ func (r *UserRepository) SetUserStatus(ctx context.Context, user_id string, stat
 	}
 
 	return nil
+
+}
+
+func (r *UserRepository) SetBusinessIdAndStatus(ctx context.Context, businessId uint, userId string) error {
+
+	objID, err := pkg.StringToObjID(userId)
+	if err != nil {
+		log.Printf("Failed to create ObjectID: %v\n", err)
+		return err
+	}
+
+	filter := bson.M{"_id": objID}
+	update := bson.M{
+		"$set": bson.M{
+			"business_id": businessId,
+			"role": domain.MANAGER,
+		},
+	}
+
+	updatedResult, err := r.Users.UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Printf("Failed to update user: %v", err)
+		return err
+	}
+
+	if updatedResult.MatchedCount == 0 {
+		log.Printf("User Document not found")
+		return errors.New("document not found")
+	}
+
+	return nil
+
+}
+
+func (r *UserRepository) ValidateUserById(ctx context.Context, userId string) (*domain.User, error) {
+
+	objID, err := pkg.StringToObjID(userId)
+	if err != nil {
+		log.Printf("Failed to create ObjectID: %v\n", err)
+		return nil, err
+	}
+
+	var result domain.User
+
+	filter := bson.M{"_id": objID}
+	if err := r.Users.FindOne(ctx, filter).Decode(&result); err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Printf("User not Found: %v", err)
+			return nil, err
+		}
+		log.Printf("Error finding user: %v", err)
+		return nil, err
+	}
+
+	return &result, nil
 
 }

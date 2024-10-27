@@ -1,5 +1,5 @@
-protoc --go_out=./user-service/proto --go-grpc_out=./user-service/proto user-service/proto/user.proto
-protoc --go_out=./product-service/proto --go-grpc_out=./product-service/proto product-service/proto/product.proto
+protoc --go_out=./user-service/proto/user --go-grpc_out=./user-service/proto/user user-service/proto/user/user.proto
+protoc --go_out=./user-service/proto/business --go-grpc_out=./user-service/proto/business user-service/proto/business/business.proto
 
 
 CHANGE MASTER TO
