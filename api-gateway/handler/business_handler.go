@@ -65,9 +65,18 @@ func (h *BusinessHandler) CreateBusinessHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	pkg.WriteJSONResponse(w, domain.BusinessResponse{
-		Success: res.Success,
-		ErrMessage: nil,
-	}, http.StatusOK)
+	switch result := res.Result.(type) {
+	case *businessproto.CreateBusinessResponse_ErrMessage:
+		log.Printf("An Error Occured: %v\n", err)
+		pkg.WriteJSONResponse(w, domain.BusinessResponse{
+			Success: res.Success,
+			ErrMessage: result.ErrMessage.Message,
+		}, http.StatusInternalServerError)
+	case *businessproto.CreateBusinessResponse_Business:
+		pkg.WriteJSONResponse(w, domain.BusinessResponse{
+			Success: res.Success,
+			Business: result.Business,
+		}, http.StatusOK)
+	}
 
 }

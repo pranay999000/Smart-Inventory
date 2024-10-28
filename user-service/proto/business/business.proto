@@ -26,10 +26,15 @@ message ErrorMessage {
 	string	message = 1;
 }
 
+message SuccessMessage {
+	string 	message = 1;
+	int32 	business_id = 2;
+}
+
 message CreateBusinessResponse {
 	bool		success = 1;
 	oneof		result {
 		ErrorMessage 	err_message = 2;
-		string			message = 3;
+		SuccessMessage	business = 3;
 	}
 }

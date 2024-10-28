@@ -14,4 +14,5 @@ var Business struct {
 type BusinessResponse struct {
 	Success				bool		`json:"success"`
 	ErrMessage			interface{}	`json:"err_message"`
+	Business			interface{}	`json:"business"`
 }

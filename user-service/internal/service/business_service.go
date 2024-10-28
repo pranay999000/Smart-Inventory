@@ -65,8 +65,11 @@ func (s *BusinessServiceServer) CreateBusiness(ctx context.Context, req *busines
 
 	return &businesspb.CreateBusinessResponse{
 		Success: true,
-		Result: &businesspb.CreateBusinessResponse_Message{
-			Message: "successfully created business",
+		Result: &businesspb.CreateBusinessResponse_Business{
+			Business: &businesspb.SuccessMessage{
+				Message: "successfully created business",
+				BusinessId: int32(businessId),
+			},
 		},
 	}, nil
 
