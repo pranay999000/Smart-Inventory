@@ -1,66 +1,61 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
-	"time"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var ReadDB *sql.DB
-var WriteDB *sql.DB
+var ReadDB *gorm.DB
+var WriteDB *gorm.DB
 
 func ConnectReadDB() {
 	var err error
 
-	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?parseTime=true", "root", os.Getenv("MYSQL_MASTER_ROOT_PASSWORD"), 3300, os.Getenv("MYSQL_DATABASE"))
+	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", "root", os.Getenv("MYSQL_MASTER_ROOT_PASSWORD"), 3300, os.Getenv("MYSQL_DATABASE"))
 
-	ReadDB, err = sql.Open("mysql", dsn)
+	ReadDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to Read MySQL: %v\n", err)
 	}
 
-	ReadDB.SetMaxOpenConns(25)
-	ReadDB.SetMaxIdleConns(25)
-	ReadDB.SetConnMaxLifetime(time.Minute)
-
-	if err = ReadDB.Ping(); err != nil {
-		log.Fatalf("Error pinging database: %v\n", err)
-	}
-
-	fmt.Println("Read MySQL Connected")
+	log.Println("Read MySQL Connected")
 }
 
 func CloseReadDB() {
-	if err := ReadDB; err != nil {
-		log.Fatalf("Failed to connect to Read MYSQL: %v\n", err)
+	sqlDB, err := ReadDB.DB()
+	if err != nil {
+		log.Fatalf("Error retriving database instanace: %v", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error closing database connection: %v", err)
 	}
 }
 
 func ConnectWriteDB() {
 	var err error
 
-	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?parseTime=true", "root", os.Getenv("MYSQL_MASTER_ROOT_PASSWORD"), 3306, os.Getenv("MYSQL_DATABASE"))
+	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", "root", os.Getenv("MYSQL_MASTER_ROOT_PASSWORD"), 3306, os.Getenv("MYSQL_DATABASE"))
 
-	WriteDB, err = sql.Open("mysql", dsn)
+	WriteDB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to Write MySQL: %v\n", err)
 	}
 
-	WriteDB.SetMaxOpenConns(25)
-	WriteDB.SetMaxIdleConns(25)
-	WriteDB.SetConnMaxLifetime(time.Minute)
-
-	if err = WriteDB.Ping(); err != nil {
-		log.Fatalf("Error pinging database: %v\n", err)
-	}
-
-	fmt.Println("Write MySQL Connected")
+	log.Println("Write MySQL Connected")
 }
 
 func CloseWriteDB() {
-	if err := WriteDB; err != nil {
-		log.Fatalf("Failed to connect to Write MYSQL: %v\n", err)
+	sqlDB, err := WriteDB.DB()
+	if err != nil {
+		log.Fatalf("Error retriving database instanace: %v", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error closing database connection: %v", err)
 	}
 }

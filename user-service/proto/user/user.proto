@@ -6,6 +6,7 @@ option go_package = ".";
 service UserService {
 	rpc SignUp(SignUpUserRequest) returns (SignUpUserResponse);
 	rpc SignIn(SignInRequest) returns (SignInResponse);
+	rpc GetBusinessId(GetBusinessIdRequest) returns (GetBusinessIdResponse);
 }
 
 enum UserStatus {
@@ -77,5 +78,17 @@ message SignInResponse {
 	oneof result {
 		ErrorMessage err_message = 2;
 		AuthTK auth_tk = 3;
+	}
+}
+
+message GetBusinessIdRequest {
+	string	user_id = 1;
+}
+
+message GetBusinessIdResponse {
+	bool	success = 1;
+	oneof result {
+		string	err_message = 2;
+		int32	business_id = 3;
 	}
 }

@@ -25,10 +25,10 @@ func NewBusinessHandler(client *businessproto.BusinessServiceClient) *BusinessHa
 func (h *BusinessHandler) CreateBusinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
-		pkg.WriteJSONResponse(w, domain.SignUpResponse{
+		pkg.WriteJSONResponse(w, domain.BusinessResponse{
 			Success: false,
 			ErrMessage: "method not allowed",
-		}, http.StatusMethodNotAllowed)
+		}, http.StatusBadRequest)
 		return
 	}
 
@@ -57,10 +57,10 @@ func (h *BusinessHandler) CreateBusinessHandler(w http.ResponseWriter, r *http.R
 	})
 
 	if err != nil {
-		log.Printf("error signing up user: %v\n", err)
-		pkg.WriteJSONResponse(w, domain.SignUpResponse{
-			Success: false,
-			ErrMessage: "signup error",
+		log.Printf("error creating business: %v\n", err)
+		pkg.WriteJSONResponse(w, domain.BusinessResponse{
+			Success: res.Success,
+			ErrMessage: "error creating business",
 		}, http.StatusInternalServerError)
 		return
 	}

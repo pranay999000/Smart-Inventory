@@ -155,3 +155,33 @@ func (s *UserServiceServer) SignIn(ctx context.Context, req *userpb.SignInReques
 	}, nil
 	
 }
+
+func (s *UserServiceServer) GetBusinessId(ctx context.Context, req *userpb.GetBusinessIdRequest) (*userpb.GetBusinessIdResponse, error) {
+
+	if strings.TrimSpace(req.UserId) == "" {
+		return &userpb.GetBusinessIdResponse{
+			Success: false,
+			Result: &userpb.GetBusinessIdResponse_ErrMessage{
+				ErrMessage: "fields are required",
+			},
+		}, status.Error(codes.InvalidArgument, "bad request")
+	}
+
+	user, err := s.Repository.ValidateUserById(ctx, req.UserId)
+	if err != nil {
+		return &userpb.GetBusinessIdResponse{
+			Success: false,
+			Result: &userpb.GetBusinessIdResponse_ErrMessage{
+				ErrMessage: "unable to find user",
+			},
+		}, status.Error(codes.Internal, "unable to find user")
+	}
+
+	return &userpb.GetBusinessIdResponse{
+		Success: true,
+		Result: &userpb.GetBusinessIdResponse_BusinessId{
+			BusinessId: int32(user.BusinessId),
+		},
+	}, nil
+
+}

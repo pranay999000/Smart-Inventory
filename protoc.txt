@@ -1,11 +1,12 @@
 protoc --go_out=./user-service/proto/user --go-grpc_out=./user-service/proto/user user-service/proto/user/user.proto
 protoc --go_out=./user-service/proto/business --go-grpc_out=./user-service/proto/business user-service/proto/business/business.proto
+protoc --go_out=./product-service/proto/product --go-grpc_out=./product-service/proto/product product-service/proto/product/product.proto
 
 
 CHANGE MASTER TO
   MASTER_HOST='mysql_master',
   MASTER_USER='root',
   MASTER_PASSWORD='masterpassword',
-  MASTER_LOG_FILE='mysql-bin.000003',
-  MASTER_LOG_POS= 684;
+  MASTER_LOG_FILE='mysql-bin.000014',
+  MASTER_LOG_POS= 2551;
 START SLAVE;

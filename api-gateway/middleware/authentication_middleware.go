@@ -15,7 +15,9 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
+		w.Header().Set("Content-Type", "application/json")
 		if authHeader == "" {
+			w.WriteHeader(http.StatusNotFound)
 			json.NewEncoder(w).Encode(struct{
 				Success		bool		`json:"success"`
 				ErrMessage	string		`json:"err_message"`
@@ -35,6 +37,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		if err != nil || !token.Valid {
 			log.Printf("invalid token: %v\n", err)
+			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode(struct{
 				Success		bool		`json:"success"`
 				ErrMessage	string		`json:"err_message"`

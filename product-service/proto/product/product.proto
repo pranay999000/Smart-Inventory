@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package product;
+option go_package = ".";
+
+service ProductService {
+	rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+}
+
+message CreateProductRequest {
+	string 	product_name = 1;
+	string	image = 2;
+	string	price = 3;
+	string	description = 4;
+	string	category = 5;
+	string	specification = 6;
+	int32	business_id = 7;
+	string	created_by = 8;
+}
+
+message CreateProductResponse {
+	bool	success = 1;
+	oneof result {
+		string	err_message = 2;
+		int32	product_id = 3;
+	}
+}
