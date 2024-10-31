@@ -37,6 +37,7 @@ message User {
 	string			location = 10;
 	int32			business_id = 11;
 	string			id = 12;
+	int32			vendor_id = 13;
 }
 
 message SuccessMessage {

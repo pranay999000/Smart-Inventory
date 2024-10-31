@@ -9,6 +9,7 @@ import (
 	"github.com/pranay999000/smart-inventory/api-gateway/handler"
 	"github.com/pranay999000/smart-inventory/api-gateway/middleware"
 	productproto "github.com/pranay999000/smart-inventory/product-service/proto/product"
+	vendorproto "github.com/pranay999000/smart-inventory/product-service/proto/vendor"
 	businessproto "github.com/pranay999000/smart-inventory/user-service/proto/business"
 	userproto "github.com/pranay999000/smart-inventory/user-service/proto/user"
 	"google.golang.org/grpc"
@@ -39,10 +40,12 @@ func main() {
 	userGRPCClient := userproto.NewUserServiceClient(userConn)
 	businessGRPCClient := businessproto.NewBusinessServiceClient(userConn)
 	productGRPCClient := productproto.NewProductServiceClient(productConn)
+	vendorGRPCClient := vendorproto.NewVendorServiceClient(productConn)
 
 	userHandler := handler.NewUserHandler(&userGRPCClient)
 	businessHandler := handler.NewBusinessHandler(&businessGRPCClient)
 	productHandler := handler.NewProductHandler(&productGRPCClient)
+	vendorHandler := handler.NewVendorHandler(&vendorGRPCClient)
 
 	http.HandleFunc("/api/v1/signup", middleware.LoggingMiddleware(userHandler.SignUpHandler))
 	http.HandleFunc("/api/v1/signin", middleware.LoggingMiddleware(userHandler.SigninHandler))
@@ -50,6 +53,8 @@ func main() {
 	http.HandleFunc("/api/v1/business/create", middleware.LoggingMiddleware(middleware.AuthenticationMiddleware(businessHandler.CreateBusinessHandler)))
 
 	http.HandleFunc("/api/v1/product/create", middleware.LoggingMiddleware(middleware.AuthenticationMiddleware(productHandler.CreateProductHandler)))
+
+	http.HandleFunc("/api/v1/vendor/create", middleware.LoggingMiddleware(middleware.AuthenticationMiddleware(vendorHandler.CreateVendorFunc)))
 
 	log.Printf("API Gateway running in post: %d", 3000)
 	log.Fatal(http.ListenAndServe(":3000", nil))

@@ -49,6 +49,7 @@ func (s *UserServiceServer) SignUp(ctx context.Context, req *userpb.SignUpUserRe
 		Avatar: req.User.Avatar,
 		Location: req.User.Location,
 		Password: req.User.Password,
+		VendorId: uint(req.User.VendorId),
 	}
 
 	err := s.Repository.CreateUser(ctx, &newUser)

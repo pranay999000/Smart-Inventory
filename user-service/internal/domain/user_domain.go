@@ -34,5 +34,6 @@ type User struct {
 	Location		string			`json:"location" bson:"location"`
 	CreatedAt		time.Time		`json:"created_at" bson:"created_at"`
 	BusinessId		uint			`json:"business_id" bson:"business_id"`
+	VendorId		uint			`json:"vendor_id" bson:"vendor_id"`
 }
 

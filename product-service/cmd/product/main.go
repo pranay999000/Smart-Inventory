@@ -11,6 +11,7 @@ import (
 	"github.com/pranay999000/smart-inventory/product-service/internal/repository"
 	"github.com/pranay999000/smart-inventory/product-service/internal/service"
 	productproto "github.com/pranay999000/smart-inventory/product-service/proto/product"
+	vendorproto "github.com/pranay999000/smart-inventory/product-service/proto/vendor"
 	userproto "github.com/pranay999000/smart-inventory/user-service/proto/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,8 +27,10 @@ func main() {
 	database.ConnectReadDB()
 
 	domain.Migrate()
+	domain.VendorMigrate()
 
 	productRepo := repository.NewProductRepo(database.ReadDB, database.WriteDB)
+	vendorRepo := repository.NewVendorRepo(database.ReadDB, database.WriteDB)
 
 	userConn, err := grpc.NewClient("localhost" + os.Getenv("USER_SERVER_ADDR"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -38,10 +41,13 @@ func main() {
 
 	productService := service.NewProductService(productRepo, &userGRPCClient)
 
+	vendorService := service.NewVendorServiceServer(vendorRepo)
+
 	var opts []grpc.ServerOption
 	srv := grpc.NewServer(opts...)
 
 	productproto.RegisterProductServiceServer(srv, productService)
+	vendorproto.RegisterVendorServiceServer(srv, vendorService)
 
 	lis, err := net.Listen("tcp", os.Getenv("PRODUCT_SERVER_ADDR"))
 	if err != nil {
