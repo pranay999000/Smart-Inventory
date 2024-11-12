@@ -43,14 +43,23 @@ func (h *VendorHandler) CreateVendorFunc(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	claims, ok := pkg.GetClaims(r)
+	if !ok {
+		pkg.WriteJSONResponse(w, &domain.VendorResponse{
+			Success: false,
+			ErrMessage: "userId not found",
+		}, http.StatusInternalServerError)
+		return
+	}
+
 	res, err := (*h.VendorClient).CreateVendor(ctx, &vendorproto.CreateVendorRequest{
 		Name: domain.Vendor.Name,
 		Location: domain.Vendor.Location,
-		BusinessId: int32(domain.Vendor.BusinessId),
+		UserId: claims.UserId,
 	})
 
 	if err != nil {
-		log.Printf("Create Handler: %v\n", err)
+		log.Printf("Create Vandor: %v\n", err)
 		pkg.WriteJSONResponse(w, &domain.VendorResponse{
 			Success: false,
 			ErrMessage: "unable to create vendor",

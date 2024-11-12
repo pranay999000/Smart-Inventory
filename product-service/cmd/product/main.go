@@ -41,7 +41,7 @@ func main() {
 
 	productService := service.NewProductService(productRepo, &userGRPCClient)
 
-	vendorService := service.NewVendorServiceServer(vendorRepo)
+	vendorService := service.NewVendorServiceServer(vendorRepo, &userGRPCClient)
 
 	var opts []grpc.ServerOption
 	srv := grpc.NewServer(opts...)

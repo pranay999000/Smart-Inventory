@@ -2,6 +2,7 @@ protoc --go_out=./user-service/proto/user --go-grpc_out=./user-service/proto/use
 protoc --go_out=./user-service/proto/business --go-grpc_out=./user-service/proto/business user-service/proto/business/business.proto
 protoc --go_out=./product-service/proto/product --go-grpc_out=./product-service/proto/product product-service/proto/product/product.proto
 protoc --go_out=./product-service/proto/vendor --go-grpc_out=./product-service/proto/vendor product-service/proto/vendor/vendor.proto
+protoc --go_out=./inventory-service/proto/inventory --go-grpc_out=./inventory-service/proto/inventory inventory-service/proto/inventory/inventory.proto
 
 
 CHANGE MASTER TO

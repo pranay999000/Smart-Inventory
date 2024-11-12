@@ -30,3 +30,11 @@ func (r *ProductRepo) CreateProduct(ctx context.Context, product *domain.Product
 	return product.ID, nil
 
 }
+
+func (r *ProductRepo) CheckProduct(ctx context.Context, productId uint) (error) {
+	var product domain.Product
+	if err := r.ReadDB.Where(map[string]interface{}{"id": productId}).First(&product).Error; err != nil {
+		return err
+	}
+	return nil
+}

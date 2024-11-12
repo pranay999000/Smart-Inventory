@@ -1,6 +1,9 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"github.com/pranay999000/smart-inventory/inventory-service/internal/database"
+	"gorm.io/gorm"
+)
 
 type Inventory struct {
 	gorm.Model
@@ -11,4 +14,8 @@ type Inventory struct {
 	Total				uint				`json:"quantity" gorm:"type:int;not null"`
 	Sold				uint				`json:"sold" gorm:"type:int;not null"`
 	Defected			uint				`json:"defected" gorm:"type:int;not null"`
+}
+
+func InventoryMigrate() {
+	database.WriteDB.AutoMigrate(&Inventory{})
 }

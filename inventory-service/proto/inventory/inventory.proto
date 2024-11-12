@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package inventory;
+option go_package = ".";
+
+service InventoryService {
+	rpc CreateInventory(CreateInventoryRequest) returns (CreateInventoryResponse);
+}
+
+message CreateInventoryRequest {
+	int32		vendor_id = 1;
+	int32		product_id = 2;
+	string		user_id	= 3;
+}
+
+message CreateInventoryResponse {
+	bool	success = 1;
+	oneof result {
+		string	err_message = 2;
+		int32	inventory_id = 3;
+	}
+}

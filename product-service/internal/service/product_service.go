@@ -97,3 +97,17 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *productpb
 	}, nil
 
 }
+
+func (s *ProductServiceServer) CheckProduct(ctx context.Context, req *productpb.CheckProductRequest) (*productpb.CheckProductResponse, error) {
+
+	err := s.ProductRepo.CheckProduct(ctx, uint(req.ProductId))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &productpb.CheckProductResponse{
+		Success: true,
+	}, nil
+
+}

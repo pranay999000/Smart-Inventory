@@ -5,6 +5,7 @@ option go_package = ".";
 
 service ProductService {
 	rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+	rpc CheckProduct(CheckProductRequest) returns (CheckProductResponse);
 }
 
 message CreateProductRequest {
@@ -24,4 +25,12 @@ message CreateProductResponse {
 		string	err_message = 2;
 		int32	product_id = 3;
 	}
+}
+
+message CheckProductRequest {
+	int32	product_id = 1;
+}
+
+message CheckProductResponse {
+	bool	success = 1;
 }
